@@ -9,19 +9,20 @@ Designed to run behind an OAuth-terminating proxy (e.g. mcp-gate); the server it
 | Tool | Dawarich API |
 | --- | --- |
 | `get_health` | `GET /api/v1/health` |
-| `get_user` | `GET /api/v1/user` |
-| `get_statistics` | `GET /api/v1/statistics` |
-| `get_monthly_statistics` | `GET /api/v1/statistics/monthly` |
+| `get_user` | `GET /api/v1/users/me` |
+| `get_statistics` | `GET /api/v1/stats` |
 | `get_points` | `GET /api/v1/points` |
+| `get_tracked_months` | `GET /api/v1/points/tracked_months` |
 | `get_visits` | `GET /api/v1/visits` |
 | `get_places` | `GET /api/v1/places` |
 | `get_places_nearby` | `GET /api/v1/places/nearby` |
 | `search_locations` | `GET /api/v1/locations` |
-| `get_trips` | `GET /api/v1/trips` |
 | `get_tracks` | `GET /api/v1/tracks` |
 | `get_areas` | `GET /api/v1/areas` |
-| `get_visited_cities` | `GET /api/v1/countries/visited_cities` |
 | `get_insights` | `GET /api/v1/insights` |
+| `get_insights_details` | `GET /api/v1/insights/details` |
+| `get_timeline` | `GET /api/v1/timeline` |
+| `get_flights` | `GET /api/v1/flights` |
 
 ## Configuration
 
