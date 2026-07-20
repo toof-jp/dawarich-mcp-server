@@ -61,37 +61,17 @@ export function buildServer(): McpServer {
     "get_user",
     "Get the current Dawarich user profile and settings.",
     {},
-    () => "/api/v1/user",
+    () => "/api/v1/users/me",
     () => ({}),
   );
 
   registerGetTool(
     server,
     "get_statistics",
-    "Get aggregated location statistics (distance, countries, cities), optionally limited to a date range.",
-    {
-      start_date: z
-        .string()
-        .optional()
-        .describe("Start date, ISO 8601 (e.g. 2025-01-01)"),
-      end_date: z.string().optional().describe("End date, ISO 8601"),
-    },
-    () => "/api/v1/statistics",
-    (a) => ({
-      start_date: a.start_date as string | undefined,
-      end_date: a.end_date as string | undefined,
-    }),
-  );
-
-  registerGetTool(
-    server,
-    "get_monthly_statistics",
-    "Get per-month statistics (distance, points, countries, cities) for a year.",
-    {
-      year: z.number().int().optional().describe("Year, e.g. 2025"),
-    },
-    () => "/api/v1/statistics/monthly",
-    (a) => ({ year: a.year as number | undefined }),
+    "Get aggregated location statistics for the current user (distance, countries, cities, points count).",
+    {},
+    () => "/api/v1/stats",
+    () => ({}),
   );
 
   registerGetTool(
@@ -132,15 +112,23 @@ export function buildServer(): McpServer {
   registerGetTool(
     server,
     "get_visits",
-    "List detected visits (stays at places) with location, duration and start/end times.",
+    "List detected visits (stays at places) within a time range, with location, duration and start/end times.",
     {
-      start_date: z.string().optional().describe("Start date, ISO 8601"),
-      end_date: z.string().optional().describe("End date, ISO 8601"),
+      start_at: z.string().describe("Range start, ISO 8601"),
+      end_at: z.string().describe("Range end, ISO 8601"),
+      page: z.number().int().optional().describe("Page number for pagination"),
+      per_page: z
+        .number()
+        .int()
+        .optional()
+        .describe("Visits per page (max 500, default 100)"),
     },
     () => "/api/v1/visits",
     (a) => ({
-      start_date: a.start_date as string | undefined,
-      end_date: a.end_date as string | undefined,
+      start_at: a.start_at as string,
+      end_at: a.end_at as string,
+      page: a.page as number | undefined,
+      per_page: a.per_page as number | undefined,
     }),
   );
 
@@ -206,21 +194,6 @@ export function buildServer(): McpServer {
 
   registerGetTool(
     server,
-    "get_trips",
-    "List trips with dates, countries and cities.",
-    {
-      start_date: z.string().optional().describe("Start date, ISO 8601"),
-      end_date: z.string().optional().describe("End date, ISO 8601"),
-    },
-    () => "/api/v1/trips",
-    (a) => ({
-      start_date: a.start_date as string | undefined,
-      end_date: a.end_date as string | undefined,
-    }),
-  );
-
-  registerGetTool(
-    server,
     "get_tracks",
     "List tracks (continuous movement segments) with distance and start/end dates.",
     {
@@ -241,21 +214,6 @@ export function buildServer(): McpServer {
 
   registerGetTool(
     server,
-    "get_visited_cities",
-    "List countries and cities visited within a date range.",
-    {
-      start_at: z.string().describe("Start date, YYYY-MM-DD"),
-      end_at: z.string().describe("End date, YYYY-MM-DD"),
-    },
-    () => "/api/v1/countries/visited_cities",
-    (a) => ({
-      start_at: a.start_at as string,
-      end_at: a.end_at as string,
-    }),
-  );
-
-  registerGetTool(
-    server,
     "get_insights",
     "Get yearly travel insights: totals, activity heatmap, streaks.",
     {
@@ -267,6 +225,56 @@ export function buildServer(): McpServer {
       year: a.year as number | undefined,
       distance_unit: a.distance_unit as string | undefined,
     }),
+  );
+
+  registerGetTool(
+    server,
+    "get_insights_details",
+    "Get detailed yearly insights: year-over-year comparison, travel patterns (time of day, day of week, seasonality), top visited locations.",
+    {
+      year: z.number().int().optional().describe("Year (default: current)"),
+      distance_unit: z.enum(["km", "mi"]).optional().describe("Distance unit"),
+    },
+    () => "/api/v1/insights/details",
+    (a) => ({
+      year: a.year as number | undefined,
+      distance_unit: a.distance_unit as string | undefined,
+    }),
+  );
+
+  registerGetTool(
+    server,
+    "get_timeline",
+    "Get day-by-day timeline within a date range (max 31 days). Each day includes visits and tracks.",
+    {
+      start_at: z.string().describe("Range start, ISO 8601"),
+      end_at: z.string().describe("Range end, ISO 8601 (max 31 days after start_at)"),
+      distance_unit: z.enum(["km", "mi"]).optional().describe("Distance unit"),
+    },
+    () => "/api/v1/timeline",
+    (a) => ({
+      start_at: a.start_at as string,
+      end_at: a.end_at as string,
+      distance_unit: a.distance_unit as string | undefined,
+    }),
+  );
+
+  registerGetTool(
+    server,
+    "get_flights",
+    "List detected flights (long-distance travel segments).",
+    {},
+    () => "/api/v1/flights",
+    () => ({}),
+  );
+
+  registerGetTool(
+    server,
+    "get_tracked_months",
+    "List months in which the user has any tracked points; useful for choosing date ranges.",
+    {},
+    () => "/api/v1/points/tracked_months",
+    () => ({}),
   );
 
   return server;
